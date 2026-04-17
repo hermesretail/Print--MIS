@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>PRINTplus MIS — Dashboard</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',sans-serif;background:#f0f2f5;color:#222}
+.topbar{background:#1a3a5c;color:#fff;padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:56px}
+.topbar h1{font-size:1.1rem;font-weight:700}
+.topbar .user{font-size:.85rem;opacity:.85;display:flex;align-items:center;gap:12px}
+.topbar .logout{background:#ffffff22;border:none;color:#fff;padding:6px 14px;border-radius:6px;cursor:pointer;font-size:.8rem}
+.sidebar{position:fixed;top:56px;left:0;width:220px;height:calc(100vh - 56px);background:#14304d;overflow-y:auto;z-index:100}
+.sidebar .menu-item{display:flex;align-items:center;gap:10px;padding:12px 20px;color:#aac4e0;font-size:.88rem;border-left:3px solid transparent;text-decoration:none}
+.sidebar .menu-item:hover{background:#1a3a5c;color:#fff}
+.sidebar .menu-item.active{background:#1a3a5c;color:#fff;border-left-color:#4da6ff}
+.sidebar .menu-section{padding:16px 20px 6px;font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#4a6a8a}
+.main{margin-left:220px;padding:24px;max-width:1100px}
+.page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;flex-wrap:wrap;gap:12px}
+.page-header h2{font-size:1.3rem;font-weight:700;color:#1a3a5c}
+.page-header .welcome{font-size:.88rem;color:#888;margin-top:2px}
+.btn{padding:9px 20px;border:none;border-radius:7px;font-size:.88rem;font-weight:600;cursor:pointer}
+.btn-primary{background:#1a3a5c;color:#fff}
+.btn-success{background:#27ae60;color:#fff}
+.btn-outline{background:#fff;color:#1a3a5c;border:2px solid #1a3a5c}
+.btn-sm{padding:6px 14px;font-size:.8rem}
+
+/* Stats grid */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
+@media(max-width:800px){.stats-grid{grid-template-columns:1fr 1fr}}
+.stat-card{background:#fff;border-radius:12px;box-shadow:0 2px 10px #0001;padding:20px 22px;display:flex;align-items:center;gap:16px;transition:transform .15s,box-shadow .15s}
+.stat-card:hover{transform:translateY(-2px);box-shadow:0 6px 20px #0002}
+.stat-icon{font-size:2rem;width:52px;height:52px;display:flex;align-items:center;justify-content:center;border-radius:12px}
+.si-blue{background:#dbeafe}
+.si-green{background:#d1fae5}
+.si-yellow{background:#fef3c7}
+.si-purple{background:#ede9fe}
+.stat-val{font-size:1.6rem;font-weight:800;color:#1a3a5c;line-height:1}
+.stat-lbl{font-size:.72rem;color:#888;font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-top:3px}
+.stat-sub{font-size:.75rem;color:#4da6ff;margin-top:2px}
+
+/* Two-column layout */
+.two-col{display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:16px}
+@media(max-width:900px){.two-col{grid-template-columns:1fr}}
+.card{background:#fff;border-radius:10px;box-shadow:0 2px 8px #0001;padding:20px;margin-bottom:16px}
+.card h3{font-size:.93rem;font-weight:700;color:#1a3a5c;margin-bottom:14px;padding-bottom:8px;border-bottom:2px solid #e8eef4;display:flex;align-items:center;justify-content:space-between}
+.card h3 a{font-size:.78rem;font-weight:600;color:#4da6ff;text-decoration:none}
+.card h3 a:hover{text-decoration:underline}
+
+/* Recent quotes table */
+.rq-table{width:100%;border-collapse:collapse}
+.rq-table th{background:#f0f4f8;padding:8px 10px;font-size:.73rem;color:#555;text-align:left;font-weight:700}
+.rq-table td{padding:9px 10px;font-size:.83rem;border-bottom:1px solid #f0f2f5;vertical-align:middle}
+.rq-table tr:last-child td{border-bottom:none}
+.rq-table tr:hover td{background:#f7f9fc}
+.rq-link{color:#1a78c2;font-weight:700;cursor:pointer;text-decoration:none}
+.rq-link:hover{text-decoration:underline}
+.badge{display:inline-block;padding:2px 9px;border-radius:10px;font-size:.7rem;font-weight:700;text-transform:uppercase}
+.badge-Draft{background:#f0f4f8;color:#555}
+.badge-Sent{background:#dbeafe;color:#1e40af}
+.badge-Accepted{background:#d1fae5;color:#065f46}
+.badge-Rejected{background:#fee2e2;color:#991b1b}
+.badge-Expired{background:#fef3c7;color:#92400e}
+
+/* Quick actions */
+.qa-grid{display:grid;grid-template-columns:1fr;gap:10px}
+.qa-item{display:flex;align-items:center;gap:12px;padding:13px 16px;border:1.5px solid #e0e8f0;border-radius:9px;cursor:pointer;text-decoration:none;transition:background .12s,border-color .12s}
+.qa-item:hover{background:#f0f4f8;border-color:#4da6ff}
+.qa-icon{font-size:1.3rem;width:36px;text-align:center}
+.qa-text .qa-title{font-size:.85rem;font-weight:700;color:#1a3a5c}
+.qa-text .qa-sub{font-size:.75rem;color:#888;margin-top:1px}
+
+/* Activity / info strip */
+.info-strip{background:#e8f4fd;border-left:4px solid #4da6ff;padding:10px 16px;border-radius:0 8px 8px 0;font-size:.83rem;margin-bottom:16px}
+.info-strip strong{color:#1a3a5c}
+
+/* Month chart */
+.chart-bar-wrap{display:flex;align-items:flex-end;gap:6px;height:80px;margin-top:8px}
+.chart-bar-col{display:flex;flex-direction:column;align-items:center;gap:3px;flex:1}
+.chart-bar{width:100%;background:#4da6ff;border-radius:4px 4px 0 0;min-height:3px;transition:height .3s}
+.chart-bar-label{font-size:.65rem;color:#888;white-space:nowrap}
+.chart-bar-val{font-size:.7rem;color:#1a3a5c;font-weight:700}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <h1>PRINTplus MIS</h1>
+  <div class="user"><span id="user-name"></span>
+    <button class="logout" onclick="logout()">Logout</button>
+  </div>
+</div>
+<div class="sidebar">
+  <div class="menu-section">Main</div>
+  <a class="menu-item active" href="/dashboard.html">🏠 Dashboard</a>
+  <a class="menu-item" href="/quotes.html">📋 Quotes</a>
+  <a class="menu-item" href="/customers.html">👥 Customers</a>
+  <div class="menu-section">Setup</div>
+  <a class="menu-item" href="/machines.html">🖨️ Machines</a>
+  <a class="menu-item" href="/paper.html">📄 Paper Stocks</a>
+  <a class="menu-item" href="/suppliers.html">🏭 Suppliers</a>
+  <a class="menu-item" href="/finishing.html">✂️ Finishing</a>
+  <div class="menu-section">Reports</div>
+  <a class="menu-item" href="/reports.html">📊 Reports</a>
+  <div class="menu-section">Admin</div>
+  <a class="menu-item" href="/users.html">👤 Users</a>
+  <a class="menu-item" href="/settings.html">⚙️ Settings</a>
+</div>
+
+<div class="main">
+  <div class="page-header">
+    <div>
+      <h2>🏠 Dashboard</h2>
+      <div class="welcome" id="welcome-msg"></div>
+    </div>
+    <button class="btn btn-primary" onclick="window.location.href='/quote-form.html'">+ New Quote</button>
+  </div>
+
+  <div class="info-strip" id="today-strip"></div>
+
+  <!-- Stats -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon si-blue">📋</div>
+      <div><div class="stat-val" id="s-month">—</div><div class="stat-lbl">Quotes This Month</div><div class="stat-sub" id="s-month-sub"></div></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon si-yellow">📤</div>
+      <div><div class="stat-val" id="s-pending">—</div><div class="stat-lbl">Pending (Sent)</div><div class="stat-sub">Awaiting response</div></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon si-green">✅</div>
+      <div><div class="stat-val" id="s-accepted">—</div><div class="stat-lbl">Accepted This Month</div><div class="stat-sub" id="s-acc-sub"></div></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon si-purple">👥</div>
+      <div><div class="stat-val" id="s-customers">—</div><div class="stat-lbl">Active Customers</div><div class="stat-sub" id="s-cust-sub"></div></div>
+    </div>
+  </div>
+
+  <div class="two-col">
+    <!-- Recent quotes -->
+    <div class="card" style="margin-bottom:0">
+      <h3>📋 Recent Quotes <a href="/quotes.html">View All →</a></h3>
+      <table class="rq-table">
+        <thead>
+          <tr>
+            <th>Quote No.</th>
+            <th>Customer</th>
+            <th>Job</th>
+            <th>Total</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="recent-tbody">
+          <tr><td colspan="5" style="text-align:center;padding:24px;color:#aaa">Loading…</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Quick actions + mini chart -->
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <div class="card" style="margin-bottom:0">
+        <h3>⚡ Quick Actions</h3>
+        <div class="qa-grid">
+          <a class="qa-item" href="/quote-form.html">
+            <div class="qa-icon">📋</div>
+            <div class="qa-text"><div class="qa-title">New Quote</div><div class="qa-sub">Create a fresh quote</div></div>
+          </a>
+          <a class="qa-item" href="/customers.html">
+            <div class="qa-icon">👥</div>
+            <div class="qa-text"><div class="qa-title">Customers</div><div class="qa-sub">Manage accounts</div></div>
+          </a>
+          <a class="qa-item" href="/paper.html">
+            <div class="qa-icon">📄</div>
+            <div class="qa-text"><div class="qa-title">Paper Stocks</div><div class="qa-sub">Update prices</div></div>
+          </a>
+          <a class="qa-item" href="/reports.html">
+            <div class="qa-icon">📊</div>
+            <div class="qa-text"><div class="qa-title">Reports</div><div class="qa-sub">Export quote data</div></div>
+          </a>
+          <a class="qa-item" href="/settings.html">
+            <div class="qa-icon">⚙️</div>
+            <div class="qa-text"><div class="qa-title">Settings</div><div class="qa-sub">Company details, terms</div></div>
+          </a>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:0">
+        <h3>📈 Monthly Quotes (last 6 months)</h3>
+        <div class="chart-bar-wrap" id="chart-bars"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const token = localStorage.getItem('mis_token');
+const user = JSON.parse(localStorage.getItem('mis_user')||'null');
+if(!token||!user){ window.location.href='/index.html'; }
+document.getElementById('user-name').textContent = user?.full_name||user?.username||'';
+
+const now = new Date();
+const greeting = now.getHours()<12?'Good morning':now.getHours()<17?'Good afternoon':'Good evening';
+document.getElementById('welcome-msg').textContent =
+  `${greeting}, ${user?.full_name||user?.username||''}! ${now.toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}`;
+document.getElementById('today-strip').innerHTML =
+  `<strong>📅 Today:</strong> ${now.toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'})} &nbsp;|&nbsp; <strong>PRINTplus MIS</strong> — Mou Press`;
+
+async function loadDashboard(){
+  try {
+    const res = await fetch('/api/dashboard/stats',{headers:{'Authorization':`Bearer ${token}`}});
+    const stats = await res.json();
+    document.getElementById('s-month').textContent = stats.quotesThisMonth||0;
+    document.getElementById('s-pending').textContent = stats.pendingQuotes||0;
+    document.getElementById('s-accepted').textContent = stats.acceptedThisMonth||0;
+    document.getElementById('s-customers').textContent = stats.totalCustomers||0;
+    document.getElementById('s-month-sub').textContent = 'This month';
+    document.getElementById('s-acc-sub').textContent = `₹${(stats.acceptedValue||0).toLocaleString('en-IN',{maximumFractionDigits:0})} value`;
+    document.getElementById('s-cust-sub').textContent = 'Active accounts';
+  } catch(e){ console.error(e); }
+
+  try {
+    const rr = await fetch('/api/dashboard/recent-quotes',{headers:{'Authorization':`Bearer ${token}`}});
+    const recent = await rr.json();
+    const tbody = document.getElementById('recent-tbody');
+    if(!recent.length){
+      tbody.innerHTML='<tr><td colspan="5" style="text-align:center;padding:24px;color:#aaa">No quotes yet. <a href="/quote-form.html">Create one →</a></td></tr>';
+    } else {
+      tbody.innerHTML = recent.map(q=>`
+        <tr>
+          <td><a class="rq-link" onclick="window.open('/quote-pdf.html?id=${q.id}','_blank')">${q.quote_no}</a></td>
+          <td style="max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${q.customer_name||q.cash_customer_name||'Walk-in'}</td>
+          <td style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#888;font-size:.8rem">${q.job_desc||q.job_type||'—'}</td>
+          <td style="font-weight:600;color:#1a3a5c">${q.total1?'₹'+parseFloat(q.total1).toLocaleString('en-IN',{maximumFractionDigits:0}):'—'}</td>
+          <td><span class="badge badge-${q.status}">${q.status}</span></td>
+        </tr>`).join('');
+    }
+  } catch(e){ console.error(e); }
+
+  // Monthly chart — load all quotes
+  try {
+    const qr = await fetch('/api/quotes',{headers:{'Authorization':`Bearer ${token}`}});
+    const quotes = await qr.json();
+    buildChart(quotes);
+  } catch(e){}
+}
+
+function buildChart(quotes){
+  const months = [];
+  for(let i=5;i>=0;i--){
+    const d = new Date(now.getFullYear(), now.getMonth()-i, 1);
+    months.push({
+      key:`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`,
+      label:d.toLocaleDateString('en-IN',{month:'short'}),
+      count:0
+    });
+  }
+  quotes.forEach(q=>{
+    if(!q.created_at) return;
+    const mk = q.created_at.slice(0,7);
+    const m = months.find(x=>x.key===mk);
+    if(m) m.count++;
+  });
+  const maxCount = Math.max(...months.map(m=>m.count),1);
+  const container = document.getElementById('chart-bars');
+  container.innerHTML = months.map(m=>`
+    <div class="chart-bar-col">
+      <div class="chart-bar-val">${m.count||''}</div>
+      <div class="chart-bar" style="height:${Math.max(m.count/maxCount*68,m.count>0?6:2)}px;background:${m.key===now.toISOString().slice(0,7)?'#1a3a5c':'#4da6ff'}"></div>
+      <div class="chart-bar-label">${m.label}</div>
+    </div>`).join('');
+}
+
+function logout(){
+  try{localStorage.removeItem('mis_token');localStorage.removeItem('mis_user');}catch(e){}
+  window.location.replace('/index.html');
+}
+
+loadDashboard();
+</script>
+</body>
+</html>

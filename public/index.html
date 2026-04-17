@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Mou Press MIS — Login</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',sans-serif;background:linear-gradient(135deg,#1a3a5c 0%,#2d6a9f 100%);min-height:100vh;display:flex;align-items:center;justify-content:center}
+.login-box{background:#fff;border-radius:16px;box-shadow:0 20px 60px #0004;padding:40px;width:100%;max-width:400px}
+.logo{text-align:center;margin-bottom:30px}
+.logo h1{font-size:1.8rem;color:#1a3a5c;font-weight:800}
+.logo p{color:#888;font-size:.9rem;margin-top:4px}
+.logo .icon{font-size:3rem;margin-bottom:8px}
+label{display:block;font-size:.8rem;font-weight:600;color:#555;margin-bottom:4px}
+input{width:100%;padding:11px 14px;border:1.5px solid #dde3ea;border-radius:8px;font-size:.95rem;margin-bottom:16px;background:#fafbfc}
+input:focus{outline:none;border-color:#2d6a9f;background:#fff}
+.btn{width:100%;padding:12px;background:#1a3a5c;color:#fff;border:none;border-radius:8px;font-size:1rem;font-weight:700;cursor:pointer;margin-top:4px}
+.btn:hover{background:#2d6a9f}
+.error{background:#fdecea;color:#c0392b;padding:10px 14px;border-radius:8px;font-size:.85rem;margin-bottom:16px;display:none}
+.version{text-align:center;color:#aaa;font-size:.75rem;margin-top:20px}
+</style>
+</head>
+<body>
+<div class="login-box">
+  <div class="logo">
+    <div class="icon">🖨️</div>
+    <h1>Mou Press</h1>
+    <p>Print Management System</p>
+  </div>
+  <div class="error" id="err"></div>
+  <label>Username</label>
+  <input type="text" id="username" placeholder="Enter your username" autocomplete="username"/>
+  <label>Password</label>
+  <input type="password" id="password" placeholder="Enter your password" autocomplete="current-password"/>
+  <button class="btn" onclick="login()">Login →</button>
+  <div class="version">Mou Press MIS v1.0 — © 2026</div>
+</div>
+<script>
+// Allow Enter key to submit
+document.addEventListener('keydown', e => {
+  if(e.key === 'Enter') login();
+});
+
+async function login(){
+  const username = document.getElementById('username').value.trim();
+  const password = document.getElementById('password').value;
+  const err = document.getElementById('err');
+  err.style.display = 'none';
+
+  if(!username || !password){
+    err.textContent = 'Please enter your username and password.';
+    err.style.display = 'block';
+    return;
+  }
+
+  try {
+    const res = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({username, password})
+    });
+    const data = await res.json();
+
+    if(data.token){
+      localStorage.setItem('mis_token', data.token);
+      localStorage.setItem('mis_user', JSON.stringify(data.user));
+      window.location.href = '/dashboard.html';
+    } else {
+      err.textContent = data.message || 'Invalid username or password.';
+      err.style.display = 'block';
+    }
+  } catch(e){
+    err.textContent = 'Cannot connect to server. Please try again.';
+    err.style.display = 'block';
+  }
+}
+</script>
+</body>
+</html>

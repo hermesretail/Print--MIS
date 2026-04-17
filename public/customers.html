@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Mou Press MIS — Customers</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',sans-serif;background:#f0f2f5;color:#222}
+.topbar{background:#1a3a5c;color:#fff;padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:56px}
+.topbar h1{font-size:1.1rem;font-weight:700}
+.topbar .user{font-size:.85rem;opacity:.85;display:flex;align-items:center;gap:12px}
+.topbar .logout{background:#ffffff22;border:none;color:#fff;padding:6px 14px;border-radius:6px;cursor:pointer;font-size:.8rem}
+.topbar .logout:hover{background:#ffffff33}
+.sidebar{position:fixed;top:56px;left:0;width:220px;height:calc(100vh - 56px);background:#14304d;overflow-y:auto;z-index:100}
+.sidebar .menu-item{display:flex;align-items:center;gap:10px;padding:12px 20px;color:#aac4e0;cursor:pointer;font-size:.88rem;border-left:3px solid transparent;text-decoration:none}
+.sidebar .menu-item:hover{background:#1a3a5c;color:#fff}
+.sidebar .menu-item.active{background:#1a3a5c;color:#fff;border-left-color:#4da6ff}
+.sidebar .menu-section{padding:16px 20px 6px;font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#4a6a8a}
+.main{margin-left:220px;padding:24px}
+.page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.page-header h2{font-size:1.3rem;font-weight:700;color:#1a3a5c}
+.btn{padding:9px 20px;border:none;border-radius:7px;font-size:.88rem;font-weight:600;cursor:pointer}
+.btn-primary{background:#1a3a5c;color:#fff}
+.btn-primary:hover{background:#14304d}
+.btn-success{background:#27ae60;color:#fff}
+.btn-success:hover{background:#219150}
+.btn-outline{background:#fff;color:#1a3a5c;border:2px solid #1a3a5c}
+.btn-danger{background:#e74c3c;color:#fff}
+.btn-danger:hover{background:#c0392b}
+.btn-sm{padding:5px 12px;font-size:.78rem}
+.card{background:#fff;border-radius:10px;box-shadow:0 2px 8px #0001;padding:20px;margin-bottom:16px}
+.search-bar{display:flex;gap:10px;margin-bottom:16px}
+.search-bar input{flex:1;padding:9px 14px;border:1.5px solid #dde3ea;border-radius:7px;font-size:.9rem}
+.search-bar input:focus{outline:none;border-color:#4da6ff}
+table{width:100%;border-collapse:collapse}
+th{background:#f0f4f8;padding:10px 12px;text-align:left;font-size:.78rem;color:#555;font-weight:600}
+td{padding:10px 12px;font-size:.85rem;border-bottom:1px solid #f0f2f5}
+tr:hover td{background:#fafbff}
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:.72rem;font-weight:600}
+.badge-cash{background:#fdf2e9;color:#a04000}
+.badge-account{background:#eafaf1;color:#1e8449}
+.empty{text-align:center;padding:40px;color:#aaa}
+.empty .icon{font-size:2.5rem;margin-bottom:10px}
+
+/* Modal */
+.modal-bg{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:#0005;z-index:1000;align-items:center;justify-content:center}
+.modal-bg.show{display:flex}
+.modal{background:#fff;border-radius:12px;padding:28px;width:100%;max-width:520px;box-shadow:0 8px 32px #0003}
+.modal h3{font-size:1.05rem;font-weight:700;color:#1a3a5c;margin-bottom:20px;padding-bottom:10px;border-bottom:2px solid #e8eef4}
+.field{margin-bottom:14px}
+label{display:block;font-size:.78rem;font-weight:600;color:#555;margin-bottom:4px}
+input,select,textarea{width:100%;padding:9px 12px;border:1.5px solid #dde3ea;border-radius:7px;font-size:.88rem;background:#fafbfc}
+input:focus,select:focus{outline:none;border-color:#4da6ff;background:#fff}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.btn-row{display:flex;gap:10px;justify-content:flex-end;margin-top:20px}
+.cash-toggle{display:flex;align-items:center;gap:8px;padding:10px 14px;background:#fdf2e9;border-radius:8px;margin-bottom:14px;cursor:pointer}
+.cash-toggle input{width:18px;height:18px;accent-color:#a04000;flex-shrink:0}
+.cash-toggle span{font-size:.88rem;color:#a04000;font-weight:600}
+.alert{padding:10px 14px;border-radius:7px;font-size:.85rem;margin-bottom:14px;display:none}
+.alert-success{background:#eafaf1;color:#1e8449;border:1px solid #a9dfbf}
+.alert-error{background:#fdecea;color:#c0392b;border:1px solid #f1948a}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <h1>🖨️ Mou Press — Print MIS</h1>
+  <div class="user">
+    <span id="user-name"></span>
+    <button class="logout" onclick="logout()">Logout</button>
+  </div>
+</div>
+
+<div class="sidebar">
+  <div class="menu-section">Main</div>
+  <a class="menu-item" href="/dashboard.html">🏠 Dashboard</a>
+  <a class="menu-item" href="/quotes.html">📋 Quotes</a>
+  <a class="menu-item active" href="/customers.html">👥 Customers</a>
+  <div class="menu-section">Setup</div>
+  <a class="menu-item" href="/machines.html">🖨️ Machines</a>
+  <a class="menu-item" href="/paper.html">📄 Paper Stocks</a>
+  <a class="menu-item" href="/suppliers.html">🏭 Suppliers</a>
+  <a class="menu-item" href="/finishing.html">✂️ Finishing</a>
+  <div class="menu-section">Reports</div>
+  <a class="menu-item" href="/reports.html">📊 Reports</a>
+  <div class="menu-section">Admin</div>
+  <a class="menu-item" href="/users.html">👤 Users</a>
+  <a class="menu-item" href="/settings.html">⚙️ Settings</a>
+</div>
+
+<div class="main">
+  <div class="page-header">
+    <h2>👥 Customers</h2>
+    <button class="btn btn-primary" onclick="openModal()">+ Add Customer</button>
+  </div>
+
+  <div class="card">
+    <div class="search-bar">
+      <input type="text" id="search" placeholder="🔍 Search by name, ID, phone or email..." oninput="loadCustomers()"/>
+    </div>
+    <div id="customers-table">
+      <div class="empty"><div class="icon">👥</div><p>Loading customers...</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- Add/Edit Modal -->
+<div class="modal-bg" id="modal">
+  <div class="modal">
+    <h3 id="modal-title">Add New Customer</h3>
+    <div class="alert alert-success" id="alert-success"></div>
+    <div class="alert alert-error" id="alert-error"></div>
+
+    <label class="cash-toggle">
+      <input type="checkbox" id="cash-only" onchange="toggleCash()"/>
+      <span>💵 Cash Only Customer (no account needed)</span>
+    </label>
+
+    <div class="field">
+      <label>Customer Name *</label>
+      <input type="text" id="f-name" placeholder="e.g. Raj Printers Pvt Ltd"/>
+    </div>
+    <div class="grid2">
+      <div class="field">
+        <label>Phone</label>
+        <input type="text" id="f-phone" placeholder="e.g. +91 98765 43210"/>
+      </div>
+      <div class="field">
+        <label>Email</label>
+        <input type="email" id="f-email" placeholder="e.g. raj@example.com"/>
+      </div>
+    </div>
+    <div class="field">
+      <label>Address</label>
+      <input type="text" id="f-address" placeholder="e.g. 12 MG Road, Mumbai"/>
+    </div>
+    <div class="field" id="markup-field">
+      <label>Markup % (profit margin for this customer)</label>
+      <input type="number" id="f-markup" value="30" min="0" max="300"/>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-success" id="save-btn" onclick="saveCustomer()">Save Customer</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const token = localStorage.getItem('mis_token');
+const user = JSON.parse(localStorage.getItem('mis_user')||'null');
+if(!token||!user){ window.location.href='/index.html'; }
+document.getElementById('user-name').textContent = user?.full_name||user?.username||'';
+
+let editingId = null;
+
+// ── Load Customers ─────────────────────────────────────
+async function loadCustomers(){
+  const search = document.getElementById('search').value;
+  const res = await fetch(`/api/customers?search=${encodeURIComponent(search)}`,{
+    headers:{'Authorization':`Bearer ${token}`}
+  });
+  const data = await res.json();
+  const el = document.getElementById('customers-table');
+
+  if(!data.length){
+    el.innerHTML=`<div class="empty"><div class="icon">👥</div><p>No customers found. Add your first one!</p></div>`;
+    return;
+  }
+
+  el.innerHTML=`<table>
+    <thead><tr>
+      <th>Customer ID</th><th>Name</th><th>Phone</th>
+      <th>Email</th><th>Markup %</th><th>Type</th><th>Actions</th>
+    </tr></thead>
+    <tbody>${data.map(c=>`<tr>
+      <td><strong>${c.customer_id}</strong></td>
+      <td>${c.name}</td>
+      <td>${c.phone||'—'}</td>
+      <td>${c.email||'—'}</td>
+      <td>${c.markup_percent}%</td>
+      <td><span class="badge ${c.cash_only?'badge-cash':'badge-account'}">${c.cash_only?'💵 Cash':'✅ Account'}</span></td>
+      <td>
+        <button class="btn btn-outline btn-sm" onclick="editCustomer(${c.id})">Edit</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteCustomer(${c.id},'${c.name}')">Delete</button>
+      </td>
+    </tr>`).join('')}
+    </tbody></table>`;
+}
+
+// ── Modal ──────────────────────────────────────────────
+function openModal(){
+  editingId = null;
+  document.getElementById('modal-title').textContent = 'Add New Customer';
+  document.getElementById('f-name').value = '';
+  document.getElementById('f-phone').value = '';
+  document.getElementById('f-email').value = '';
+  document.getElementById('f-address').value = '';
+  document.getElementById('f-markup').value = '30';
+  document.getElementById('cash-only').checked = false;
+  document.getElementById('markup-field').style.display = '';
+  document.getElementById('alert-success').style.display = 'none';
+  document.getElementById('alert-error').style.display = 'none';
+  document.getElementById('modal').classList.add('show');
+}
+
+function closeModal(){
+  document.getElementById('modal').classList.remove('show');
+}
+
+function toggleCash(){
+  const cash = document.getElementById('cash-only').checked;
+  document.getElementById('markup-field').style.display = cash ? 'none' : '';
+}
+
+async function editCustomer(id){
+  const res = await fetch(`/api/customers/${id}`,{
+    headers:{'Authorization':`Bearer ${token}`}
+  });
+  const c = await res.json();
+  editingId = id;
+  document.getElementById('modal-title').textContent = 'Edit Customer';
+  document.getElementById('f-name').value = c.name||'';
+  document.getElementById('f-phone').value = c.phone||'';
+  document.getElementById('f-email').value = c.email||'';
+  document.getElementById('f-address').value = c.address||'';
+  document.getElementById('f-markup').value = c.markup_percent||30;
+  document.getElementById('cash-only').checked = c.cash_only===1;
+  document.getElementById('alert-success').style.display = 'none';
+  document.getElementById('alert-error').style.display = 'none';
+  document.getElementById('modal').classList.add('show');
+}
+
+async function saveCustomer(){
+  const name = document.getElementById('f-name').value.trim();
+  const err = document.getElementById('alert-error');
+  const suc = document.getElementById('alert-success');
+  err.style.display='none'; suc.style.display='none';
+
+  if(!name){
+    err.textContent='Customer name is required.';
+    err.style.display='block';
+    return;
+  }
+
+  const body = {
+    name,
+    phone: document.getElementById('f-phone').value.trim(),
+    email: document.getElementById('f-email').value.trim(),
+    address: document.getElementById('f-address').value.trim(),
+    markup_percent: parseFloat(document.getElementById('f-markup').value)||30,
+    cash_only: document.getElementById('cash-only').checked
+  };
+
+  const url = editingId ? `/api/customers/${editingId}` : '/api/customers';
+  const method = editingId ? 'PUT' : 'POST';
+
+  const res = await fetch(url,{
+    method,
+    headers:{'Authorization':`Bearer ${token}`,'Content-Type':'application/json'},
+    body: JSON.stringify(body)
+  });
+  const data = await res.json();
+
+  if(res.ok){
+    suc.textContent = editingId
+      ? `✅ Customer updated successfully!`
+      : `✅ Customer ${data.customer_id} created successfully!`;
+    suc.style.display='block';
+    loadCustomers();
+    setTimeout(closeModal, 1500);
+  } else {
+    err.textContent = data.message || 'Error saving customer.';
+    err.style.display='block';
+  }
+}
+
+async function deleteCustomer(id, name){
+  if(!confirm(`Are you sure you want to delete "${name}"?`)) return;
+  const res = await fetch(`/api/customers/${id}`,{
+    method:'DELETE',
+    headers:{'Authorization':`Bearer ${token}`}
+  });
+  if(res.ok) loadCustomers();
+}
+
+function logout(){
+  try{ localStorage.removeItem('mis_token'); localStorage.removeItem('mis_user'); }catch(e){}
+  window.location.replace('/index.html');
+}
+
+// Close modal when clicking outside
+document.getElementById('modal').addEventListener('click', function(e){
+  if(e.target === this) closeModal();
+});
+
+loadCustomers();
+</script>
+</body>
+</html>
